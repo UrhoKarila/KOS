@@ -18,7 +18,7 @@ LOCK DT TO T - t0.
 UNTIL FALSE {
 	SET delta_time TO DT.
 	IF delta_time > 0 {
-		PRINT speed.
+		PRINT ALT:RADAR.
 		SET i_error TO i_error + ERR * delta_time.
 		SET d_error TO (ERR-error) / delta_time.
 		SET error TO ERR.
