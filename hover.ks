@@ -1,29 +1,29 @@
 STAGE.
-SET speed TO  0.
-LOCK THROTTLE TO speed.
-LOCK DIRECTION TO UP.
-LOCK T to TIME:SECONDS.
-WAIT 5.
-SET target_height TO 10.
-LOCK ERR TO target_height - ALT:RADAR.
-SET p TO 0.1.
-SET d TO 0.05.
-SET i TO 0.006.
-SET i_error TO 0.
-SET error TO ERR.
-SET d_error TO 0.
-LOCK speed TO MAX(d*d_error + p*ERR + i*i_error, 0).
-SET t0 TO T.
-LOCK DT TO T - t0.
+
+LOCK height TO ALT:RADAR.
+SET height_setpoint TO 1.2.
+
+LOCK P TO height_setpoint - height.
+SET I TO 0.
+SET D TO 0.
+SET P0 TO P.
+
+SET Kp TO 0.1.
+SET Ki TO 0.006.
+SET Kd TO 0.006.
+
+LOCK thrott TO Kp * P + Ki * I + Kd * D.
+LOCK THROTTLE to thrott.
+
+SET t0 TO TIME:SECONDS.
 UNTIL FALSE {
-	SET delta_time TO DT.
-	IF delta_time > 0 {
-		PRINT ALT:RADAR.
-		SET i_error TO i_error + ERR * delta_time.
-		SET d_error TO (ERR-error) / delta_time.
-		SET error TO ERR.
-		SET t0 TO T.
+	SET dt TO TIME:SECONDS - t0.
+	IF dt > 0 {
+		PRINT height.
+		SET I TO I + P * dt.
+		SET D TO (P - P0) / dt.
+		SET P0 TO P.
+		SET t0 TO TIME:SECONDS.
 	}
 	WAIT 0.001.
 }
-//THIS IS AN OBVIOUS CHANGE
