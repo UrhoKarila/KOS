@@ -16,7 +16,7 @@ LOCK DT TO T - t0.
 UNTIL FALSE {
 	SET delta_time TO DT.
 	IF delta_time > 0 {
-		PRINT diff.
+		PRINT speed.
 		SET d_error TO (ERR-error) / delta_time.
 		SET error TO ERR.
 		//SET err TO err+error. //THIS IS THE I TERM
