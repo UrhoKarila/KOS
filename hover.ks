@@ -5,7 +5,7 @@ STAGE.
 WAIT 2.
 
 LOCK height TO ALT:RADAR.
-SET height_mode to "RADAR".
+SET height_mode to "RDR".
 SET height_setpoint TO 15.
 
 LOCK P TO height_setpoint - height.
@@ -13,7 +13,8 @@ SET I TO 0.
 SET D TO 0.
 SET P0 TO P.
 
-
+//Variables for Kp, Ki, and Kd
+//can fold with ctrl+shft+[
 //Recalculating these values, in case the SET was not evaluating the expression correctly
 //SET Ku TO 0.12.
 //SET Tu TO 3.0.
@@ -48,14 +49,25 @@ WAIT 4.
 UNLOCK STEERING.
 
 SET t0 TO TIME:SECONDS.
+SET display_timer to TIME:SECONDS.
 UNTIL FALSE {
 	SET dt TO TIME:SECONDS - t0.
+	//Controls
 	IF dt > 0 {
-		PRINT height.
+		//PRINT height.
 		SET I TO I + P * dt.
 		SET D TO (P - P0) / dt.
 		SET P0 TO P.
 		SET t0 TO TIME:SECONDS.
+	}
+	//Informational Display
+	IF TIME:SECONDS - display_timer > 1{
+		SET display_timer TO TIME:SECONDS.
+		CLEARSCREEN.
+		PRINT "height_setpoint is: " + MATH:ROUND(height_setpoint, 1) AT(1,1).
+		PRINT "Curent height is:   " + MATH:ROUND(SHIP:ALTITUDE) AT(2,1).
+		PRINT "Cumulative I is: " + MATH:ROUND(I, 2) AT(4,1).
+		PRINT "Current Mode is: " + height_mode AT(6,TERMINAL:WIDTH - 10).
 	}
 	WAIT 0.001.
 }
@@ -75,12 +87,14 @@ ON AG2{
 
 //Toggle between flying based on Radar altutude or Altitude ASL
 ON AG3{
-	if(height_mode = "RADAR"){
+	if(height_mode = "RDR"){
 		SET height_mode TO "ASL".
+		LOCK height TO SHIP:ALTITUDE.
 		LOCK height_setpoint TO SHIP:ALTITUDE.
 	}
 	else{
-		SET height_mode TO "RADAR".
+		SET height_mode TO "RDR".
+		LOCK height TO ALT:RADAR.
 		LOCK height_setpoint TO ALT:RADAR.
 	}
 }
