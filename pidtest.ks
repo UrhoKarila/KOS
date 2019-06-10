@@ -1,0 +1,31 @@
+function PlaneHeading{
+	SET northPole TO latlng(90,0).
+	RETURN MOD(-northPole:BEARING + 360, 360).
+}
+
+SET CURRENTVALUE TO 0.
+
+SET wKp to 0.01.
+SET wKd to 0.005.
+SET wKi to 0.001.
+SET WheelsteerPID to PIDLOOP(wKp,wKi,wKd).
+
+SET WheelsteerPID:MAXOUTPUT TO 0.5.
+SET WheelsteerPID:MINOUTPUT TO -0.5.
+
+//SET WheelsteerPID:SETPOINT TO 90.
+
+//LOCK STEERING TO UP + R(0, PlaneHeading, 0).
+
+LOCK ERRIn TO (90 - PlaneHeading).
+
+UNTIL SHIP:ALTITUDE > 100 {
+	CLEARSCREEN.
+	SET CURRENTVALUE to WheelsteerPID:UPDATE(TIME:SECONDS, ERRIn).
+	PRINT "PID OUTPUT: " + CURRENTVALUE AT (2,2).
+	PRINT "ERROR: " + ERRIn AT (3,3).
+	PRINT "SETPOINT: " + WheelsteerPID:SETPOINT() AT (2,5).
+
+	SET SHIP:CONTROL:WHEELSTEER TO CURRENTVALUE.
+	WAIT 0.1.
+}
